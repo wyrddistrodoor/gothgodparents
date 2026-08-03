@@ -72,3 +72,161 @@
     font-family:'Space Mono', monospace;
     font-size:11px;
     letter-spacing:0.14em;
+    text-transform:uppercase;
+    transition: border-color .25s ease, color .25s ease;
+    margin-bottom:56px;
+    animation: pulsate 2.4s ease-in-out infinite;
+  }
+  @keyframes pulsate{
+    0%, 100%{
+      box-shadow: 0 0 0 0 rgba(140,47,57,0.5);
+    }
+    50%{
+      box-shadow: 0 0 0 10px rgba(140,47,57,0);
+    }
+  }
+  .seal:hover{ border-color:var(--gold); color:var(--gold); }
+  .seal:active{ transform:scale(0.96); }
+  .seal.stamping{ animation:stamp .5s ease; }
+  @keyframes stamp{
+    0%{ transform:scale(1); }
+    35%{ transform:scale(0.86); }
+    60%{ transform:scale(1.05); }
+    100%{ transform:scale(1); }
+  }
+
+  .result{
+    max-width:420px;
+    width:100%;
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .result.visible{ opacity:1; transform:translateY(0); }
+
+  .result-label{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+
+  .god-name{
+    font-family:'UnifrakturMaguntia', cursive;
+    font-size:2.4rem;
+    line-height:1.2;
+    margin:0;
+  }
+
+  .again{
+    margin-top:32px;
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .again:hover{ color:var(--gold); }
+
+  .credits{
+    margin-top:80px;
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    color:var(--line);
+    text-align:center;
+    max-width:480px;
+    line-height:1.8;
+  }
+  .credits .credits-label{
+    display:block;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .seal{ animation:none; }
+    .seal.stamping{ animation:none; }
+    .result{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="eyebrow">a naming-day ritual</div>
+  <h1>Goth Godparent Generator</h1>
+  <p class="subhead">Press the seal. Something in velvet and candle-smoke will claim you as their changeling.</p>
+
+  <button class="seal" id="summonBtn">Summon</button>
+
+  <div class="result" id="result">
+    <span class="result-label">You have been claimed by</span>
+    <div class="god-name" id="godName">—</div>
+    <button class="again" id="againBtn">Draw again</button>
+  </div>
+
+  <div class="credits">
+    <span class="credits-label">In the lineage of</span>
+    Screamin' Jay Hawkins · Percy Bysshe Shelley · Lord Byron · Christopher Marlowe · Emily Dickinson · Eartha Kitt · Edgar Allan Poe · Siouxsie Sioux · Ian Curtis · Peter Murphy · Grace Jones · Albie Mason · The Sisters of Mercy · Peter Gabriel · The Cramps · Robert Smith · Vincent van Gogh · Jacques-Louis David · Artemisia Gentileschi · Bad Brains · Death · Pure Hell · Poly Styrene · Arthur Rimbaud · Dante Gabriel Rossetti · Joy Division · Bauhaus · Bela Lugosi · Nick Cave · Lydia Lunch · Rozz Williams · Andi Sex Gang · Wayne Hussey · Steven Severin · Danielle Dax · Killing Joke · Alien Sex Fiend · Xmal Deutschland · The Birthday Party · Diamanda Galás · Patti Smith · Richard Hell · The Damned · X-Ray Spex · Nina Hagen · Suicide (the band) · Alice Bag · Mary Shelley · Bram Stoker · Charlotte Brontë · Emily Brontë · Sheridan Le Fanu · Ann Radcliffe · Matthew Lewis · John Polidori · Charles Baudelaire · Shirley Jackson · Angela Carter · Vincent Price · Lon Chaney · Theda Bara · Elvira · Francisco Goya · Gustave Doré · Egon Schiele · Hieronymus Bosch · Käthe Kollwitz · Edvard Munch · Aubrey Beardsley · The Somnambulist
+  </div>
+</div>
+
+<script>
+(function(){
+  const lineage = [
+    "Screamin' Jay Hawkins","Percy Bysshe Shelley","Lord Byron","Christopher Marlowe",
+    "Emily Dickinson","Eartha Kitt","Edgar Allan Poe","Siouxsie Sioux","Ian Curtis",
+    "Peter Murphy","Grace Jones","Albie Mason","The Sisters of Mercy","Peter Gabriel",
+    "The Cramps","Robert Smith","Vincent van Gogh","Jacques-Louis David",
+    "Artemisia Gentileschi","Bad Brains","Death","Pure Hell","Poly Styrene",
+    "Arthur Rimbaud","Dante Gabriel Rossetti","Joy Division","Bauhaus","Bela Lugosi",
+    "Nick Cave","Lydia Lunch","Rozz Williams","Andi Sex Gang","Wayne Hussey",
+    "Steven Severin","Danielle Dax","Killing Joke","Alien Sex Fiend","Xmal Deutschland",
+    "The Birthday Party","Diamanda Galás","Patti Smith","Richard Hell","The Damned",
+    "X-Ray Spex","Nina Hagen","Suicide (the band)","Alice Bag","Mary Shelley",
+    "Bram Stoker","Charlotte Brontë","Emily Brontë","Sheridan Le Fanu","Ann Radcliffe",
+    "Matthew Lewis","John Polidori","Charles Baudelaire","Shirley Jackson",
+    "Angela Carter","Vincent Price","Lon Chaney","Theda Bara","Elvira",
+    "Francisco Goya","Gustave Doré","Egon Schiele","Hieronymus Bosch","Käthe Kollwitz",
+    "Edvard Munch","Aubrey Beardsley","The Somnambulist"
+  ];
+
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  let lastName = null;
+  function generate(){
+    let name;
+    do { name = pick(lineage); } while(name === lastName && lineage.length > 1);
+    lastName = name;
+    return name;
+  }
+
+  const summonBtn = document.getElementById('summonBtn');
+  const againBtn = document.getElementById('againBtn');
+  const result = document.getElementById('result');
+  const godName = document.getElementById('godName');
+
+  function summon(){
+    summonBtn.classList.add('stamping');
+    setTimeout(()=> summonBtn.classList.remove('stamping'), 500);
+    godName.textContent = generate();
+    result.classList.add('visible');
+  }
+
+  summonBtn.addEventListener('click', summon);
+  againBtn.addEventListener('click', summon);
+})();
+</script>
+
+</body>
+</html>
