@@ -110,7 +110,7 @@
     font-size:10px;
     letter-spacing:0.3em;
     text-transform:uppercase;
-    color:var(--gold);
+    color:var(--accent);
     margin-bottom:14px;
   }
 
@@ -158,12 +158,36 @@
     .seal.stamping{ animation:none; }
     .result{ transition:none; }
   }
+
+  .lightning{
+    position:fixed;
+    inset:0;
+    background:#fff;
+    opacity:0;
+    pointer-events:none;
+    z-index:999;
+  }
+  .lightning.flash{
+    animation: lightning-flash 1.6s ease-out;
+  }
+  @keyframes lightning-flash{
+    0%{ opacity:0; }
+    8%{ opacity:0.85; }
+    18%{ opacity:0.15; }
+    30%{ opacity:0.6; }
+    45%{ opacity:0.05; }
+    55%{ opacity:0.3; }
+    75%{ opacity:0; }
+    100%{ opacity:0; }
+  }
 </style>
 </head>
 <body>
 
+<div class="lightning" id="lightning"></div>
+
 <div class="stage">
-  <div class="eyebrow">a naming-day ritual</div>
+  <div class="eyebrow">For the Born Darkly</div>
   <h1>Goth Godparents Generator</h1>
   <p class="subhead">Press the seal. Something in velvet and candle-smoke will claim you as their changeling.</p>
 
@@ -230,6 +254,70 @@
 
   summonBtn.addEventListener('click', summon);
   againBtn.addEventListener('click', summon);
+
+  // ---------- lightning + thunder ----------
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lightningEl = document.getElementById('lightning');
+  let audioCtx = null;
+
+  function unlockAudio(){
+    if(!audioCtx){
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e){ audioCtx = null; }
+    }
+  }
+  summonBtn.addEventListener('click', unlockAudio, { once:true });
+
+  function playThunder(){
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const duration = 3.2 + Math.random()*1.6;
+
+    const bufferSize = audioCtx.sampleRate * duration;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2 - 1); }
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(400, now);
+    filter.frequency.linearRampToValueAtTime(90, now + duration);
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.5, now + 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    noise.start(now);
+    noise.stop(now + duration);
+  }
+
+  function strike(){
+    if(prefersReducedMotion) return;
+    lightningEl.classList.remove('flash');
+    void lightningEl.offsetWidth; // restart animation
+    lightningEl.classList.add('flash');
+    setTimeout(playThunder, 150 + Math.random()*250);
+  }
+
+  function scheduleNextStrike(){
+    const delay = 9000 + Math.random()*18000; // 9–27s between strikes
+    setTimeout(()=>{
+      strike();
+      scheduleNextStrike();
+    }, delay);
+  }
+
+  if(!prefersReducedMotion){
+    scheduleNextStrike();
+  }
 })();
 </script>
 
