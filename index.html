@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Goth Godparent Generator</title>
+<title>Goth Godparents Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -116,8 +116,8 @@
 
   .god-name{
     font-family:'UnifrakturMaguntia', cursive;
-    font-size:2.4rem;
-    line-height:1.2;
+    font-size:clamp(1.5rem, 5vw, 2.2rem);
+    line-height:1.5;
     margin:0;
   }
 
@@ -164,7 +164,7 @@
 
 <div class="stage">
   <div class="eyebrow">a naming-day ritual</div>
-  <h1>Goth Godparent Generator</h1>
+  <h1>Goth Godparents Generator</h1>
   <p class="subhead">Press the seal. Something in velvet and candle-smoke will claim you as their changeling.</p>
 
   <button class="seal" id="summonBtn">Summon</button>
@@ -203,12 +203,16 @@
 
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-  let lastName = null;
+  let lastPair = null;
   function generate(){
-    let name;
-    do { name = pick(lineage); } while(name === lastName && lineage.length > 1);
-    lastName = name;
-    return name;
+    let a, b, pairKey;
+    do {
+      a = pick(lineage);
+      do { b = pick(lineage); } while(b === a);
+      pairKey = [a,b].sort().join('|');
+    } while(pairKey === lastPair && lineage.length > 2);
+    lastPair = pairKey;
+    return [a, b];
   }
 
   const summonBtn = document.getElementById('summonBtn');
@@ -219,7 +223,8 @@
   function summon(){
     summonBtn.classList.add('stamping');
     setTimeout(()=> summonBtn.classList.remove('stamping'), 500);
-    godName.textContent = generate();
+    const [a, b] = generate();
+    godName.innerHTML = a + '<br>&amp;<br>' + b;
     result.classList.add('visible');
   }
 
