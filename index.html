@@ -74,7 +74,7 @@
     letter-spacing:0.14em;
     text-transform:uppercase;
     transition: border-color .25s ease, color .25s ease;
-    margin-bottom:56px;
+    margin-bottom:20px;
     animation: pulsate 2.4s ease-in-out infinite;
   }
   @keyframes pulsate{
@@ -93,6 +93,32 @@
     35%{ transform:scale(0.86); }
     60%{ transform:scale(1.05); }
     100%{ transform:scale(1); }
+  }
+  .seal:disabled{
+    cursor:default;
+    opacity:0.55;
+    animation:none;
+  }
+
+  .channeling{
+    height:20px;
+    margin-bottom:36px;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:var(--accent);
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .channeling.active{
+    opacity:1;
+    display:inline-block;
+    animation:channel-flicker 2.6s ease-in-out infinite;
+  }
+  @keyframes channel-flicker{
+    0%, 100%{ transform:scale(1); opacity:0.5; }
+    50%{ transform:scale(1.35); opacity:1; }
   }
 
   .result{
@@ -119,6 +145,17 @@
     font-size:clamp(1.5rem, 5vw, 2.2rem);
     line-height:1.5;
     margin:0;
+    opacity:0;
+    filter:blur(6px) brightness(1);
+    transform:scale(0.8);
+    text-shadow: 0 0 0 rgba(184,150,79,0);
+    transition:opacity 1.8s ease, filter 1.8s ease, transform 1.8s ease, text-shadow 1.8s ease;
+  }
+  .god-name.revealed{
+    opacity:1;
+    filter:blur(0) brightness(1.25);
+    transform:scale(1);
+    text-shadow: 0 0 18px rgba(184,150,79,0.55);
   }
 
   .again{
@@ -134,6 +171,11 @@
     text-decoration:underline;
   }
   .again:hover{ color:var(--gold); }
+  .again:disabled{
+    cursor:default;
+    opacity:0.4;
+    text-decoration:none;
+  }
 
   .credits{
     margin-top:80px;
@@ -190,6 +232,8 @@
     .seal{ animation:none; }
     .seal.stamping{ animation:none; }
     .result{ transition:none; }
+    .channeling.active{ animation:none; opacity:1; }
+    .god-name{ transition:none; filter:none; opacity:1; }
   }
 
   .lightning{
@@ -225,6 +269,7 @@
   <p class="subhead">Press the seal. Something in velvet and candle-smoke will claim you as their changeling.</p>
 
   <button class="seal" id="summonBtn">Summon</button>
+  <div class="channeling" id="channeling">Shadows forming&hellip;</div>
 
   <div class="result" id="result">
     <span class="result-label">You have been claimed by</span>
@@ -290,20 +335,48 @@
   const againBtn = document.getElementById('againBtn');
   const result = document.getElementById('result');
   const godName = document.getElementById('godName');
+  const channeling = document.getElementById('channeling');
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let summoning = false;
+
+  function setButtonsDisabled(disabled){
+    summonBtn.disabled = disabled;
+    againBtn.disabled = disabled;
+  }
 
   function summon(){
+    if(summoning) return;
+    summoning = true;
+
+    setButtonsDisabled(true);
     summonBtn.classList.add('stamping');
     setTimeout(()=> summonBtn.classList.remove('stamping'), 500);
+
+    // hide any previous reveal while we "channel" the next one
+    godName.classList.remove('revealed');
+    channeling.classList.add('active');
+
     const [a, b] = generate();
-    godName.innerHTML = a + '<br>&amp;<br>' + b;
-    result.classList.add('visible');
+
+    const delay = prefersReducedMotion ? 0 : 1800 + Math.random()*1400; // ~1.8-3.2s of suspense
+
+    setTimeout(()=>{
+      channeling.classList.remove('active');
+      godName.innerHTML = a + '<br>&amp;<br>' + b;
+      result.classList.add('visible');
+      // next tick so the blur/opacity transition actually plays
+      requestAnimationFrame(()=> godName.classList.add('revealed'));
+      setButtonsDisabled(false);
+      summoning = false;
+    }, delay);
   }
 
   summonBtn.addEventListener('click', summon);
   againBtn.addEventListener('click', summon);
 
   // ---------- lightning + thunder ----------
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lightningEl = document.getElementById('lightning');
   let audioCtx = null;
 
