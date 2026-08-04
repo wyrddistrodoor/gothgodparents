@@ -152,6 +152,17 @@
     color:var(--muted);
     margin-bottom:10px;
   }
+  .credits .name-item{
+    color:var(--line);
+    transition: color 0.8s ease, text-shadow 0.8s ease;
+  }
+  .credits .name-item.lit{
+    color:var(--gold);
+    text-shadow: 0 0 10px rgba(184,150,79,0.5);
+  }
+  .credits .sep{
+    color:var(--line);
+  }
 
   .support{
     margin-top:40px;
@@ -223,7 +234,7 @@
 
   <div class="credits">
     <span class="credits-label">In the lineage of</span>
-    Screamin' Jay Hawkins · Percy Bysshe Shelley · Lord Byron · Christopher Marlowe · Emily Dickinson · Eartha Kitt · Edgar Allan Poe · Siouxsie Sioux · Ian Curtis · Peter Murphy · Grace Jones · Albie Mason · The Sisters of Mercy · Peter Gabriel · The Cramps · Robert Smith · Vincent van Gogh · Jacques-Louis David · Artemisia Gentileschi · Bad Brains · Death · Pure Hell · Poly Styrene · Arthur Rimbaud · Dante Gabriel Rossetti · Joy Division · Bauhaus · Bela Lugosi · Nick Cave · Lydia Lunch · Rozz Williams · Andi Sex Gang · Wayne Hussey · Steven Severin · Danielle Dax · Killing Joke · Alien Sex Fiend · Xmal Deutschland · The Birthday Party · Diamanda Galás · Patti Smith · Richard Hell · The Damned · X-Ray Spex · Nina Hagen · Suicide (the band) · Alice Bag · Mary Shelley · Bram Stoker · Charlotte Brontë · Emily Brontë · Sheridan Le Fanu · Ann Radcliffe · Matthew Lewis · John Polidori · Charles Baudelaire · Shirley Jackson · Angela Carter · Vincent Price · Lon Chaney · Theda Bara · Elvira · Francisco Goya · Gustave Doré · Egon Schiele · Hieronymus Bosch · Käthe Kollwitz · Edvard Munch · Aubrey Beardsley · The Somnambulist · The Cult · Barnabas Collins · Beetlejuice · Wednesday Addams · Heathcliff · The Phantom of the Opera · Dr. Jekyll and Mr. Hyde · Robert Louis Stevenson · Sethe · Angela Toussaint · Frederick Douglass · Octavia E. Butler · Toni Morrison · Jane Eyre · Horace Walpole · The Castle of Otranto · Daphne du Maurier · Paschal Beverly Randolph · Rollo Ahmed · Éliphas Lévi · Franz Anton Mesmer · Johann Wolfgang Von Goethe · Uriah Derick D'Arcy · Karl Heinrich Ulrichs · Paul Féval · Otto Goetzi · Morticia Addams · Gilda · Blacula · Renfield
+    <span id="creditsList"></span>
   </div>
 
   <div class="support">
@@ -255,7 +266,10 @@
     "Horace Walpole","The Castle of Otranto","Daphne du Maurier",
     "Paschal Beverly Randolph","Rollo Ahmed","Éliphas Lévi","Franz Anton Mesmer",
     "Johann Wolfgang Von Goethe","Uriah Derick D'Arcy","Karl Heinrich Ulrichs",
-    "Paul Féval","Otto Goetzi","Morticia Addams","Gilda","Blacula","Renfield"
+    "Paul Féval","Otto Goetzi","Morticia Addams","Gilda","Blacula","Renfield",
+    "Lydia Deetz","The Lady of Shalott","The River Styx","Sir Edward Burne-Jones",
+    "Henry Fuseli","William Blake","Divide and Dissolve","Edinburgh","Glasgow","Faust",
+    "Lovecraft Country","Lestat","Dorian Gray","The Cabinet of Dr. Caligari","Edward Scissorhands"
   ];
 
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -350,6 +364,41 @@
 
   if(!prefersReducedMotion){
     scheduleNextStrike();
+  }
+
+  // ---------- credits list: render + random highlight ----------
+  const creditsList = document.getElementById('creditsList');
+  const nameSpans = [];
+  lineage.forEach((name, i) => {
+    const span = document.createElement('span');
+    span.className = 'name-item';
+    span.textContent = name;
+    creditsList.appendChild(span);
+    nameSpans.push(span);
+    if(i < lineage.length - 1){
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = ' · ';
+      creditsList.appendChild(sep);
+    }
+  });
+
+  function highlightRandomName(){
+    const span = nameSpans[Math.floor(Math.random()*nameSpans.length)];
+    span.classList.add('lit');
+    setTimeout(()=> span.classList.remove('lit'), 1400 + Math.random()*800);
+  }
+
+  function scheduleNextHighlight(){
+    const delay = 500 + Math.random()*900; // roughly every 0.5–1.4s
+    setTimeout(()=>{
+      highlightRandomName();
+      scheduleNextHighlight();
+    }, delay);
+  }
+
+  if(!prefersReducedMotion){
+    scheduleNextHighlight();
   }
 })();
 </script>
