@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goth Godparents Generator</title>
+
+<!-- ============================================================
+     © 2026 wyrddistrodoor. All rights reserved.
+     This code, its design, and its content (including the
+     "lineage" text) may not be copied, redistributed, or reused
+     without permission. See LICENSE.md in the repository.
+     ============================================================ -->
+
+<!-- Opt out of AI/data-mining crawlers that respect these signals -->
+<meta name="robots" content="noai, noimageai">
+<meta name="robots" content="max-snippet:-1, max-image-preview:none">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -23,6 +35,10 @@
     background:#000;
     color:var(--ink);
     font-family:'EB Garamond', serif;
+    /* discourage casual text-selection/copying across the page */
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    user-select:none;
   }
 
   .stage{
@@ -228,6 +244,15 @@
     border-color:var(--gold);
   }
 
+  .rights{
+    margin-top:56px;
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    color:var(--line);
+    line-height:1.8;
+  }
+
   @media (prefers-reduced-motion: reduce){
     .seal{ animation:none; }
     .seal.stamping{ animation:none; }
@@ -286,6 +311,8 @@
   <div class="support">
     <a href="https://ko-fi.com/gothgodparents" target="_blank" rel="noopener">Support this ritual</a>
   </div>
+
+  <div class="rights">Copyright (c) 2026 wyrddistrodoor<br>All Rights Reserved.</div>
 </div>
 
 <script>
@@ -475,6 +502,11 @@
   if(!prefersReducedMotion){
     scheduleNextHighlight();
   }
+
+  // ---------- light copy deterrents (casual copy/paste only — ----------
+  // ---------- does NOT and cannot prevent view-source/devtools) --------
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('copy', (e) => e.preventDefault());
 })();
 </script>
 
